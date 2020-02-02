@@ -162,7 +162,7 @@ class NgramModelWithInterpolation(NgramModel):
 # Part 3: Your N-Gram Model Experimentation
 
 
-class CityClassification(object):
+class CityClassifier(object):
 
     def __init__(self):
         self.models = {}
@@ -173,7 +173,22 @@ class CityClassification(object):
             country = data_file[:2]
             m = create_ngram_model_lines(model_class, path, n, k)
             self.models[country] = m
-            
+
+    def perplexity(self, text):
+        results = {}
+        for country, model in self.models.items():
+            perplexity = model.perplexity(text)
+            results[country] = perplexity
+        return results
+
+cc = CityClassifier()
+cc.train_models(NgramModelWithInterpolation, 7, 2)
+for data_file in os.listdir('val'):
+    path = 'val/' + data_file
+    country = data_file[:2]
+    pp = cc.perplexity(path)
+    print("Test country: {}, prediction: {}".format(country, min(pp,
+                                                                 key=pp.get)))
 
 
 if __name__ == '__main__':
