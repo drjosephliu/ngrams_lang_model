@@ -1,4 +1,4 @@
-import math, random
+import math, random, os
 from collections import defaultdict
 
 ################################################################################
@@ -50,7 +50,7 @@ class NgramModel(object):
         self.k = k
         self.ngram_counts = defaultdict(int)
         self.context_counts = defaultdict(int)
-        self.vocab = set()
+        self.vocab = defaultdict(int)
 
     def get_vocab(self):
         ''' Returns the set of characters in the vocab '''
@@ -62,16 +62,18 @@ class NgramModel(object):
         for ngram in all_ngrams:
             self.ngram_counts[ngram] += 1
             self.context_counts[ngram[0]] += 1
-            self.vocab.add(ngram[1])
+            self.vocab[ngram[1]] += 1
         
 
     def prob(self, context, char):
         ''' Returns the probability of char appearing after context '''
         if context not in self.context_counts:
             return 1 / len(self.vocab)
-        if self.context_counts[context] == 0: 
+        if self.context_counts[context] == 0 and self.k == 0:
             return 0
-        return self.ngram_counts[(context, char)] / self.context_counts[context]
+        numer = self.ngram_counts[(context, char)] + self.k
+        denom = self.context_counts[context] + self.k * len(self.vocab)
+        return numer / denom
 
     def random_char(self, context):
         ''' Returns a random character based on the given context and the 
@@ -88,20 +90,29 @@ class NgramModel(object):
     def random_text(self, length):
         ''' Returns text of the specified character length based on the
             n-grams learned by this model '''
-        if self.n == 0:
-            return ""
         context = start_pad(self.n)
         random_text = ""
         for i in range(length):
-            random_text += random_char(context)
-            context = random_text[-self.n:]
+            r_char = self.random_char(context)
+            random_text += r_char
+            context = context[1:] + r_char
         return random_text
 
 
     def perplexity(self, text):
         ''' Returns the perplexity of text based on the n-grams learned by
             this model '''
-        pass
+        context = start_pad(self.n)
+        cum_prob = float(0)
+        for ch in text:
+            prob = self.prob(context, ch)
+            if prob == 0:
+                return float('inf')
+            cum_prob += math.log(prob)
+            context = context[1:] + ch
+        return -(1 / self.n) * cum_prob
+
+
 
 ################################################################################
 # Part 2: N-Gram Model with Interpolation
@@ -111,20 +122,62 @@ class NgramModelWithInterpolation(NgramModel):
     ''' An n-gram model with interpolation '''
 
     def __init__(self, n, k):
-        pass
+        self.n = n
+        self.k = k
+        self.ngram_counts = defaultdict(int)
+        self.context_counts = defaultdict(int)
+        self.vocab = defaultdict(int)
+        self.lamda = [1 / (n + 1)] * (n + 1)
 
     def get_vocab(self):
-        pass
+        return self.vocab
+
+    def set_lamda(self, new_lamda):
+        assert(len(self.lamda) == len(new_lamda) and round(sum(new_lamda)) == 1)
+        self.lamda = new_lamda
 
     def update(self, text):
-        pass
+        for ch in text:
+            self.vocab[ch] += 1
+        for i in range(0, self.n+1):
+            all_ngrams = ngrams(i, text)
+            for ngram in all_ngrams:
+                self.ngram_counts[ngram] += 1
+                self.context_counts[ngram[0]] += 1
+
 
     def prob(self, context, char):
-        pass
+        cum_prob = 0
+        for i in range(0, self.n+1):
+            if context not in self.context_counts:
+                cum_prob += self.lamda[i] * (1 / len(self.vocab))
+                context = context[1:]
+                continue
+            numer = self.ngram_counts[(context, char)] + self.k
+            denom = self.context_counts[context] + self.k * len(self.vocab)
+            cum_prob += self.lamda[i] * (numer / denom)
+            context = context[1:]
+        return cum_prob
+
+
 
 ################################################################################
 # Part 3: Your N-Gram Model Experimentation
-################################################################################
+
+
+class CityClassification(object):
+
+    def __init__(self):
+        self.models = {}
+
+    def train_models(self, model_class, n, k):
+        for data_file in os.listdir('train'):
+            path = 'train/' + data_file
+            country = data_file[:2]
+            m = create_ngram_model_lines(model_class, path, n, k)
+            self.models[country] = m
+            
+
 
 if __name__ == '__main__':
     pass
