@@ -183,17 +183,6 @@ class CityClassifier(object):
             results[country] = perplexity
         return results
 
-<<<<<<< HEAD
-m = create_ngram_model(NgramModel, 'shakespeare_input.txt', 10, 1)
-for data_file in os.listdir('test_data'):
-    path = 'test_data/' + data_file
-    with open(path, encoding='utf-8', errors="ignore") as f:
-        pp = m.perplexity(f.read())
-        print("{} perplexity = {}".format(data_file, pp))
-
-# cc = CityClassifier()
-# cc.train_models(NgramModelWithInterpolation, 7, 2)
-=======
 ################################################################################
 
 ####CUSTOM MODEL
@@ -231,7 +220,6 @@ cc.models['pk'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
 cc.models['za'].set_lamda([0.1, 0.15, 0.2, 0.25, 0.3])
 
 
->>>>>>> 57626a5910a1996283cf38c9c8bce3c37d80f488
 # for data_file in os.listdir('val'):
 #     path = 'val/' + data_file
 #     country = data_file[:2]
@@ -239,10 +227,6 @@ cc.models['za'].set_lamda([0.1, 0.15, 0.2, 0.25, 0.3])
 #     with open(path, encoding='utf-8', errors="ignore") as f:
 #         text = f.read()
 #     pp = cc.perplexity(text)
-<<<<<<< HEAD
-#     print("Test country: {}, prediction: {}".format(country, min(pp,
-#                                                                  key=pp.get)))
-=======
 
 #####TEST TRAIN
 results = []
@@ -297,7 +281,6 @@ for entry in test_cities:
 for s in results:
         outfile.write("%s\n" % s)
 outfile.close()
->>>>>>> 57626a5910a1996283cf38c9c8bce3c37d80f488
 
 
 if __name__ == '__main__':
