@@ -1,6 +1,6 @@
 import math, random, os
 from collections import defaultdict
-from nltk.util import ngrams
+# from nltk.util import ngrams
 
 ################################################################################
 # Part 0: Utility Functions
@@ -55,7 +55,7 @@ class NgramModel(object):
 
     def get_vocab(self):
         ''' Returns the set of characters in the vocab '''
-        return self.vocab
+        return set(self.vocab.keys())
 
     def update(self, text):
         ''' Updates the model n-grams based on text '''
@@ -107,6 +107,8 @@ class NgramModel(object):
         cum_prob = float(0)
         for ng in ngs:
             prob = self.prob(ng[0], ng[1])
+            if prob == 0:
+                return float('inf')
             cum_prob += math.log(prob)
         return math.e ** (cum_prob * (-1 / len(text)))
 
@@ -128,7 +130,7 @@ class NgramModelWithInterpolation(NgramModel):
         self.lamda = [1 / (n + 1)] * (n + 1)
 
     def get_vocab(self):
-        return self.vocab
+        return set(self.vocab.keys())
 
     def set_lamda(self, new_lamda):
         assert(len(self.lamda) == len(new_lamda) and round(sum(new_lamda)) == 1)
@@ -183,11 +185,11 @@ class CityClassifier(object):
             results[country] = perplexity
         return results
 
-################################################################################
+#################################################################################
 
-####CUSTOM MODEL
+#####CUSTOM MODEL
 
-#Load File
+##Load File
 def load_test_file(data_file):
     words = []
     labels = []   
