@@ -1,5 +1,6 @@
 import math, random, os
 from collections import defaultdict
+from nltk.util import ngrams
 
 ################################################################################
 # Part 0: Utility Functions
@@ -35,7 +36,7 @@ def create_ngram_model_lines(model_class, path, n=2, k=0):
     model = model_class(n, k)
     with open(path, encoding='utf-8', errors='ignore') as f:
         for line in f:
-            model.update(line.strip())
+            model.update(line.strip()+'~~~')
     return model
 
 ################################################################################
@@ -156,6 +157,7 @@ class NgramModelWithInterpolation(NgramModel):
             context = context[1:]
         return cum_prob
 
+    # def kneser_ney_prob(self, context, char):
 
 
 ################################################################################
@@ -181,6 +183,7 @@ class CityClassifier(object):
             results[country] = perplexity
         return results
 
+<<<<<<< HEAD
 m = create_ngram_model(NgramModel, 'shakespeare_input.txt', 10, 1)
 for data_file in os.listdir('test_data'):
     path = 'test_data/' + data_file
@@ -190,6 +193,45 @@ for data_file in os.listdir('test_data'):
 
 # cc = CityClassifier()
 # cc.train_models(NgramModelWithInterpolation, 7, 2)
+=======
+################################################################################
+
+####CUSTOM MODEL
+
+#Load File
+def load_test_file(data_file):
+    words = []
+    labels = []   
+    with open(data_file, 'rt', encoding="ISO-8859-1") as f:
+        for line in f:
+            line_split = line[:-1].split("\t")
+            words.append(line_split[0].lower())
+                # labels.append(int(line_split[1]))
+    return words
+
+#Train
+cc = CityClassifier()
+n=4
+k=1
+cc.train_models(NgramModelWithInterpolation, n, k)
+
+
+#[0.05, 0.1, 0.2, 0.3, 0.35]
+#[0.1, 0.15, 0.2, 0.25, 0.3]
+
+#Interpolation
+cc.models['af'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
+cc.models['cn'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
+cc.models['de'].set_lamda([0.05, 0.1, 0.2, 0.3, 0.35])
+cc.models['fi'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
+cc.models['fr'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
+cc.models['in'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
+cc.models['ir'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
+cc.models['pk'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
+cc.models['za'].set_lamda([0.1, 0.15, 0.2, 0.25, 0.3])
+
+
+>>>>>>> 57626a5910a1996283cf38c9c8bce3c37d80f488
 # for data_file in os.listdir('val'):
 #     path = 'val/' + data_file
 #     country = data_file[:2]
@@ -197,9 +239,68 @@ for data_file in os.listdir('test_data'):
 #     with open(path, encoding='utf-8', errors="ignore") as f:
 #         text = f.read()
 #     pp = cc.perplexity(text)
+<<<<<<< HEAD
 #     print("Test country: {}, prediction: {}".format(country, min(pp,
 #                                                                  key=pp.get)))
+=======
+
+#####TEST TRAIN
+results = []
+total_count = 0.0
+total_len = 0
+for data_file in os.listdir('train'):
+    path = 'train/' + data_file
+    country = data_file[:2]
+    # print(country + "#####" + '\n')
+    cities = load_test_file(path)
+    count = 0.0
+    for entry in cities:
+        pp = cc.perplexity(entry+'..')
+        # print("entry: {}, prediction: {}".format(entry, min(pp, key=pp.get))) 
+        if min(pp, key=pp.get) == str(country):
+            count+=1
+    results.append(count/len(cities))
+    total_count+=count
+    total_len+=len(cities)
+for i in range(len(results)):
+    print("Train Country: {}, Percent Correct: {}".format(COUNTRY_CODES[i], results[i]))
+print(total_count/total_len)
+
+#####TEST VALIDATOIN
+results = []
+total_count = 0.0
+total_len = 0
+for data_file in os.listdir('val'):
+    path = 'val/' + data_file
+    country = data_file[:2]
+    # print(country + "#####" + '\n')
+    cities = load_test_file(path)
+    count = 0.0
+    for entry in cities:
+        pp = cc.perplexity(entry+'~~~')
+        # print("entry: {}, prediction: {}".format(entry, min(pp, key=pp.get))) 
+        if min(pp, key=pp.get) == str(country):
+            count+=1
+    results.append(count/len(cities))
+    total_count+=count
+    total_len+=len(cities)
+for i in range(len(results)):
+    print("VAL Country: {}, Percent Correct: {}".format(COUNTRY_CODES[i], results[i]))
+print(total_count/total_len)
+
+results = []
+test_cities = load_test_file('test/cities_test.txt')
+outfile = open("test_labels.txt", "w")
+for entry in test_cities:
+    pp = cc.perplexity(entry+'~~~')
+    results.append(min(pp, key=pp.get))
+for s in results:
+        outfile.write("%s\n" % s)
+outfile.close()
+>>>>>>> 57626a5910a1996283cf38c9c8bce3c37d80f488
 
 
 if __name__ == '__main__':
     pass
+    #COUNTRY_CODES = ['af', 'cn', 'de', 'fi', 'fr', 'in', 'ir', 'pk', 'za']
+
