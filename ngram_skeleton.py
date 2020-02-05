@@ -181,24 +181,24 @@ class CityClassifier(object):
             results[country] = perplexity
         return results
 
-m = create_ngram_model(NgramModel, 'shakespeare_input.txt', 2, 1)
+m = create_ngram_model(NgramModel, 'shakespeare_input.txt', 10, 1)
 for data_file in os.listdir('test_data'):
     path = 'test_data/' + data_file
     with open(path, encoding='utf-8', errors="ignore") as f:
         pp = m.perplexity(f.read())
         print("{} perplexity = {}".format(data_file, pp))
 
-cc = CityClassifier()
-cc.train_models(NgramModelWithInterpolation, 7, 2)
-for data_file in os.listdir('val'):
-    path = 'val/' + data_file
-    country = data_file[:2]
-    text = ""
-    with open(path, encoding='utf-8', errors="ignore") as f:
-        text = f.read()
-    pp = cc.perplexity(text)
-    print("Test country: {}, prediction: {}".format(country, min(pp,
-                                                                 key=pp.get)))
+# cc = CityClassifier()
+# cc.train_models(NgramModelWithInterpolation, 7, 2)
+# for data_file in os.listdir('val'):
+#     path = 'val/' + data_file
+#     country = data_file[:2]
+#     text = ""
+#     with open(path, encoding='utf-8', errors="ignore") as f:
+#         text = f.read()
+#     pp = cc.perplexity(text)
+#     print("Test country: {}, prediction: {}".format(country, min(pp,
+#                                                                  key=pp.get)))
 
 
 if __name__ == '__main__':
