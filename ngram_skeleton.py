@@ -36,7 +36,7 @@ def create_ngram_model_lines(model_class, path, n=2, k=0):
     model = model_class(n, k)
     with open(path, encoding='utf-8', errors='ignore') as f:
         for line in f:
-            model.update(line.strip()+'~~~')
+            model.update(line.strip()+'.')
     return model
 
 ################################################################################
@@ -203,7 +203,7 @@ def load_test_file(data_file):
 #Train
 cc = CityClassifier()
 n=4
-k=1
+k=.37
 cc.train_models(NgramModelWithInterpolation, n, k)
 
 
@@ -213,13 +213,13 @@ cc.train_models(NgramModelWithInterpolation, n, k)
 #Interpolation
 cc.models['af'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
 cc.models['cn'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
-cc.models['de'].set_lamda([0.05, 0.1, 0.2, 0.3, 0.35])
+cc.models['de'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
 cc.models['fi'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
 cc.models['fr'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
-cc.models['in'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
-cc.models['ir'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
+cc.models['in'].set_lamda([0.15, 0.15, 0.2, 0.25, 0.25])
+cc.models['ir'].set_lamda([0.15, 0.15, 0.2, 0.25, 0.25])
 cc.models['pk'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
-cc.models['za'].set_lamda([0.1, 0.15, 0.2, 0.25, 0.3])
+cc.models['za'].set_lamda([0.2, 0.2, 0.2, 0.2, 0.2])
 
 
 # for data_file in os.listdir('val'):
@@ -241,7 +241,7 @@ for data_file in os.listdir('train'):
     cities = load_test_file(path)
     count = 0.0
     for entry in cities:
-        pp = cc.perplexity(entry+'..')
+        pp = cc.perplexity(entry+'.')
         # print("entry: {}, prediction: {}".format(entry, min(pp, key=pp.get))) 
         if min(pp, key=pp.get) == str(country):
             count+=1
@@ -263,7 +263,7 @@ for data_file in os.listdir('val'):
     cities = load_test_file(path)
     count = 0.0
     for entry in cities:
-        pp = cc.perplexity(entry+'~~~')
+        pp = cc.perplexity(entry+'.')
         # print("entry: {}, prediction: {}".format(entry, min(pp, key=pp.get))) 
         if min(pp, key=pp.get) == str(country):
             count+=1
@@ -278,7 +278,7 @@ results = []
 test_cities = load_test_file('test/cities_test.txt')
 outfile = open("test_labels.txt", "w")
 for entry in test_cities:
-    pp = cc.perplexity(entry+'~~~')
+    pp = cc.perplexity(entry+'.')
     results.append(min(pp, key=pp.get))
 for s in results:
         outfile.write("%s\n" % s)
@@ -288,4 +288,3 @@ outfile.close()
 if __name__ == '__main__':
     pass
     #COUNTRY_CODES = ['af', 'cn', 'de', 'fi', 'fr', 'in', 'ir', 'pk', 'za']
-
